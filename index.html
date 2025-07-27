@@ -81,12 +81,7 @@
         const allTimeStatsDisplay = document.getElementById('allTimeStatsDisplay');
         const screenshotButton = document.getElementById('screenshotButton'); 
         const screenshotButtonContainer = document.getElementById('screenshotButtonContainer'); 
-        const clearButtonWrapper = document.getElementById('clearButtonWrapper');
-
-        // ===== CountAPI-Konfiguration =====
-        const COUNT_API_NAMESPACE = "overtourissimus.com";
-        const COUNT_API_KEY       = "touris";
-        // ===== Ende CountAPI-Konfiguration =====
+        const clearButtonWrapper = document.getElementById('clearButtonWrapper'); 
 
         let isDrawing = false;
         let touristCount = 0; 
@@ -298,16 +293,9 @@
             ctx.restore(); // Stellt den vorherigen Canvas-Zustand wieder her
 
             touristCount++;
-            // ===== CountAPI: globalen Zähler um 1 erhöhen =====
-            fetch(`https://api.countapi.xyz/hit/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`)
-              .then(res => res.json())
-              .then(data => {
-                allTimeTouristCount = data.value;
-                updateAllTimeStatsDisplay();
-              })
-              .catch(err => console.error("Fehler beim Aktualisieren des All-Time-Zählers:", err));
-            // ===== Ende CountAPI-Hit =====
+            allTimeTouristCount++; 
             updateClearButtonText();
+            updateAllTimeStatsDisplay(); 
         }
         
         /**
@@ -491,16 +479,7 @@
 
         // Initialization on page load and resize
         window.addEventListener('load', () => {
-            resizeCanvas();
-            // ===== CountAPI: All-Time-Zähler beim Start holen =====
-            fetch(`https://api.countapi.xyz/get/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`)
-              .then(res => res.json())
-              .then(data => {
-                allTimeTouristCount = data.value || 0;
-                updateAllTimeStatsDisplay();
-              })
-              .catch(err => console.error("Fehler beim Laden des All‑Time‑Zählers:", err));
-            // ===== Ende Fetch beim Laden =====
+            resizeCanvas(); 
         });
         window.addEventListener('resize', resizeCanvas);
 
