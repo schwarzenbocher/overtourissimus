@@ -41,9 +41,9 @@
 
         <!-- Neuer Container für den Screenshot-Button - mit hohem Z-Index, damit er immer im Vordergrund ist -->
         <div id="screenshotButtonContainer" class="absolute top-0 right-0 py-2 px-4 z-40 flex items-center justify-end">
-            <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white p-1.5 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center">
+            <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white h-5 w-5 p-0 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center focus:outline-none">
                 <!-- Minimalistisches Kamera SVG Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
                     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
                     <circle cx="12" cy="13" r="3"/>
                 </svg>
@@ -419,8 +419,8 @@
             }
 
             // Hide the clear button wrapper and screenshot button container before taking the screenshot
-            clearButtonWrapper.style.display = 'none';
-            screenshotButtonContainer.style.display = 'none'; 
+            clearButtonWrapper.style.visibility = 'hidden';
+            screenshotButtonContainer.style.visibility = 'hidden';
 
             html2canvas(document.body, {
                 useCORS: true, // Wichtig, wenn Inhalte von anderen Ursprüngen geladen werden
@@ -441,8 +441,8 @@
                     messageBox.classList.remove('hidden');
                 }
                 // Show the clear button wrapper and screenshot button container again
-                clearButtonWrapper.style.display = 'flex'; // Wiederherstellen des Flex-Verhaltens
-                screenshotButtonContainer.style.display = 'flex'; // Wiederherstellen des Flex-Verhaltens
+                clearButtonWrapper.style.visibility = 'visible';
+                screenshotButtonContainer.style.visibility = 'visible';
             });
         }
 
