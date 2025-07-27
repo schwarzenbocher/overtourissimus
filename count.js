@@ -1,38 +1,56 @@
-// countapi.js
+// count.js
 
-// Passe diese Werte an deine GitHub-Pages-Domain/Key an:
+// ── 1) CountAPI‑Konfiguration ───────────────────────────────────────
 const COUNT_NAMESPACE = "meinusername.github.io";
 const COUNT_KEY       = "touris";
 const COUNT_API_BASE  = "https://api.countapi.xyz";
 
-/**
- * Liest den aktuellen All-Time-Zähler aus.
- * @returns {Promise<number>} Der Zählerstand (oder 0 bei Fehler)
- */
 export async function fetchAllTimeCount() {
   try {
     const res  = await fetch(`${COUNT_API_BASE}/get/${COUNT_NAMESPACE}/${COUNT_KEY}`);
     const data = await res.json();
     return data.value ?? 0;
-  } catch (err) {
-    console.error("CountAPI get failed:", err);
+  } catch {
     return 0;
   }
 }
 
-/**
- * Erhöht den All-Time-Zähler um 1 und gibt den neuen Wert zurück.
- * @returns {Promise<number>} Neuer Zählerstand (oder vorheriger Stand bei Fehler)
- */
 export async function hitAllTimeCount() {
   try {
     const res  = await fetch(`${COUNT_API_BASE}/hit/${COUNT_NAMESPACE}/${COUNT_KEY}`);
     const data = await res.json();
     return data.value ?? 0;
-  } catch (err) {
-    console.error("CountAPI hit failed:", err);
-    // Du könntest hier auch den vorherigen allTimeTouristCount zurückgeben,
-    // den du in index.js zwischenspeicherst.
+  } catch {
     return 0;
   }
 }
+
+// ── 2) Alles, was vorher im <script>…</script> deiner index.html stand ──
+import { fetchAllTimeCount, hitAllTimeCount } from './count.js';
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Hier kommen alle deine DOM‑Selektoren, Variablen (canvas, ctx, Buttons, Counters)
+  // … plus Funktionen: updateClearButtonText, updateAllTimeStatsDisplay, clearCanvas, drawMannequin, gameLoop, resizeCanvas, takeScreenshot
+
+  // Beispiel für den Start:
+  fetchAllTimeCount().then(val => {
+    allTimeTouristCount = val;
+    updateAllTimeStatsDisplay();
+    resizeCanvas();
+  });
+
+  // Und in drawMannequin rufst du nur noch hitAllTimeCount() auf statt allTimeTouristCount++:
+  function drawMannequin(x, y) {
+    // … dein Zeichen‑Code …
+
+    hitAllTimeCount().then(newVal => {
+      allTimeTouristCount = newVal;
+      updateAllTimeStatsDisplay();
+    });
+
+    touristCount++;
+    updateClearButtonText();
+  }
+
+  // … restliche Event‑Listener wie gehabt …
+});
