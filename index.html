@@ -419,8 +419,8 @@
             }
 
             // Hide the clear button wrapper and screenshot button container before taking the screenshot
-            clearButtonWrapper.style.display = 'none';
-            screenshotButtonContainer.style.display = 'none'; 
+            clearButtonWrapper.style.visibility = 'hidden';
+            screenshotButtonContainer.style.visibility = 'hidden';
 
             html2canvas(document.body, {
                 useCORS: true, // Wichtig, wenn Inhalte von anderen Ursprüngen geladen werden
@@ -441,8 +441,8 @@
                     messageBox.classList.remove('hidden');
                 }
                 // Show the clear button wrapper and screenshot button container again
-                clearButtonWrapper.style.display = 'flex'; // Wiederherstellen des Flex-Verhaltens
-                screenshotButtonContainer.style.display = 'flex'; // Wiederherstellen des Flex-Verhaltens
+                clearButtonWrapper.style.visibility = 'visible';
+                screenshotButtonContainer.style.visibility = 'visible';
             });
         }
 
