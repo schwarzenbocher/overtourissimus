@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overtourissimus App</title>
+    <title>overtourissimus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
@@ -25,26 +25,25 @@
         }
         /* Zusätzliche Stilregel für allTimeStatsDisplay, um die vertikale Ausrichtung zu erzwingen */
         #allTimeStatsDisplay {
-            /* Fix vertical centering even when controls are hidden */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            /* Berechnet: text-xs ist ca. 12px. py-1 ist 0.25rem (4px) oben und unten. Gesamt 12 + 4 + 4 = 20px */
+            height: 20px; /* Feste Höhe setzen */
+            line-height: 20px; /* Zeilenhöhe gleich der Höhe setzen für vertikale Zentrierung */
         }
     </style>
 </head>
 <body class="bg-black text-white flex flex-col items-center justify-center h-screen w-screen">
     <!-- Hauptcontainer füllt nun den gesamten Bildschirm ohne max-width/height Einschränkungen -->
     <div class="relative w-full h-full bg-black shadow-lg overflow-hidden">
-        <!-- "overtourissimus" Schriftzug - Z-Index auf 5 gesetzt, damit Touristen ihn verdecken können -->
-        <div class="absolute top-0 left-0 right-0 py-2 px-4 z-5 flex items-center justify-center"> 
+        <!-- "overtourissimus" Schriftzug - Vertikal am Icon ausgerichtet -->
+        <div class="absolute top-0 left-0 right-0 px-4 h-[52px] z-5 flex items-center justify-center"> 
             <h1 class="text-center font-bold text-xl font-outfit tracking-widest leading-none">overtourissimus</h1>
         </div>
 
         <!-- Neuer Container für den Screenshot-Button - mit hohem Z-Index, damit er immer im Vordergrund ist -->
         <div id="screenshotButtonContainer" class="absolute top-0 right-0 py-2 px-4 z-40 flex items-center justify-end">
-            <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white h-5 w-5 p-0 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center focus:outline-none">
+            <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white p-1.5 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center">
                 <!-- Minimalistisches Kamera SVG Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
                     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
                     <circle cx="12" cy="13" r="3"/>
                 </svg>
@@ -63,13 +62,13 @@
 
     <!-- Container für "Clear Touris" Button -->
     <div id="clearButtonWrapper" class="absolute bottom-[44px] left-1/2 -translate-x-1/2 z-30">
-        <button id="clearButton" class="font-outfit px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm rounded-md shadow-md w-56 text-center">
+        <button id="clearButton" class="font-outfit px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm rounded-md shadow-md w-80 text-center">
             clear 0 touris
         </button>
     </div>
 
     <!-- Container für "All Time Generated Touris" Display - bleibt immer sichtbar -->
-    <div id="allTimeStatsDisplay" class="absolute bottom-4 left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-56 text-center border border-gray-700 flex items-center justify-center z-30">
+    <div id="allTimeStatsDisplay" class="absolute bottom-4 left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-80 text-center border border-gray-700 flex items-center justify-center z-30">
         0 all time generated touris
     </div>
 
@@ -82,7 +81,7 @@
         const allTimeStatsDisplay = document.getElementById('allTimeStatsDisplay');
         const screenshotButton = document.getElementById('screenshotButton'); 
         const screenshotButtonContainer = document.getElementById('screenshotButtonContainer'); 
-        const clearButtonWrapper = document.getElementById('clearButtonWrapper'); // Neuer Referenz
+        const clearButtonWrapper = document.getElementById('clearButtonWrapper'); 
 
         let isDrawing = false;
         let touristCount = 0; 
@@ -110,19 +109,21 @@
 
         /**
          * Aktualisiert den Text des "Clear"-Buttons mit der aktuellen Anzahl der Touristen.
+         * Formatiert die Zahl für bessere Lesbarkeit.
          */
         function updateClearButtonText() {
             if (clearButton) {
-                clearButton.textContent = `clear ${touristCount} touris`;
+                clearButton.textContent = `clear ${touristCount.toLocaleString('de-DE')} touris`;
             }
         }
 
         /**
          * Aktualisiert die Anzeige der insgesamt generierten Touristen.
+         * Formatiert die Zahl für bessere Lesbarkeit.
          */
         function updateAllTimeStatsDisplay() {
             if (allTimeStatsDisplay) {
-                allTimeStatsDisplay.textContent = `${allTimeTouristCount} all time generated touris`;
+                allTimeStatsDisplay.textContent = `${allTimeTouristCount.toLocaleString('de-DE')} all time generated touris`;
             }
         }
 
@@ -413,37 +414,56 @@
          * Erstellt einen Screenshot des gesamten Body-Elements und bietet ihn zum Download an.
          */
         function takeScreenshot() {
-            // Temporarily hide the message box if it's visible, so it's not included in the screenshot
+            // Die Nachrichtenbox temporär ausblenden, falls sie sichtbar ist
             const wasMessageBoxHidden = messageBox.classList.contains('hidden');
             if (!wasMessageBoxHidden) {
                 messageBox.classList.add('hidden');
             }
 
-            // Hide the clear button wrapper and screenshot button container before taking the screenshot
-            clearButtonWrapper.style.visibility = 'hidden';
-            screenshotButtonContainer.style.visibility = 'hidden';
+            // UI-Buttons ausblenden
+            clearButtonWrapper.style.display = 'none';
+            screenshotButtonContainer.style.display = 'none'; 
 
-            html2canvas(document.body, {
-                useCORS: true, // Wichtig, wenn Inhalte von anderen Ursprüngen geladen werden
-                allowTaint: true, // Erlaubt das Rendern von Inhalten, die die Canvas "verunreinigen" könnten
-            }).then(canvas => {
-                const image = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = 'overtourissimus_screenshot.png';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }).catch(error => {
-                console.error("Fehler beim Erstellen des Screenshots:", error);
-            }).finally(() => {
-                // Restore the message box visibility if it was hidden
-                if (!wasMessageBoxHidden) {
-                    messageBox.classList.remove('hidden');
-                }
-                // Show the clear button wrapper and screenshot button container again
-                clearButtonWrapper.style.visibility = 'visible';
-                screenshotButtonContainer.style.visibility = 'visible';
+            // Stil der Statistik-Anzeige temporär für den Screenshot ändern
+            // Hintergrund und Rahmen entfernen, Text auf Weiß setzen für bessere Sichtbarkeit
+            allTimeStatsDisplay.style.backgroundColor = 'transparent';
+            allTimeStatsDisplay.style.border = 'none';
+            allTimeStatsDisplay.style.color = 'white';
+
+            // requestAnimationFrame nutzen, um sicherzustellen, dass DOM-Updates vor dem Screenshot gerendert werden
+            requestAnimationFrame(() => {
+                html2canvas(document.body, {
+                    useCORS: true,
+                    allowTaint: true,
+                }).then(canvas => {
+                    const image = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = 'overtourissimus_screenshot.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }).catch(error => {
+                    console.error("Fehler beim Erstellen des Screenshots:", error);
+                    showMessage("Screenshot konnte nicht erstellt werden."); // Benutzerfreundliche Fehlermeldung
+                }).finally(() => {
+                    // Alles wieder in den ursprünglichen Zustand versetzen
+
+                    // Sichtbarkeit der Nachrichtenbox wiederherstellen
+                    if (!wasMessageBoxHidden) {
+                        messageBox.classList.remove('hidden');
+                    }
+
+                    // Sichtbarkeit der Buttons wiederherstellen
+                    clearButtonWrapper.style.display = 'block'; 
+                    screenshotButtonContainer.style.display = 'flex'; 
+
+                    // Ursprünglichen Stil der Statistik-Anzeige wiederherstellen, indem die Inline-Stile entfernt werden.
+                    // Der Browser greift dann wieder auf die CSS-Klassen zurück.
+                    allTimeStatsDisplay.style.backgroundColor = '';
+                    allTimeStatsDisplay.style.border = '';
+                    allTimeStatsDisplay.style.color = '';
+                });
             });
         }
 
@@ -473,4 +493,3 @@
     </script>
 </body>
 </html>
-
