@@ -25,9 +25,10 @@
         }
         /* Zusätzliche Stilregel für allTimeStatsDisplay, um die vertikale Ausrichtung zu erzwingen */
         #allTimeStatsDisplay {
-            /* Berechnet: text-xs ist ca. 12px. py-1 ist 0.25rem (4px) oben und unten. Gesamt 12 + 4 + 4 = 20px */
-            height: 20px; /* Feste Höhe setzen */
-            line-height: 20px; /* Zeilenhöhe gleich der Höhe setzen für vertikale Zentrierung */
+            /* Fix vertical centering even when controls are hidden */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
