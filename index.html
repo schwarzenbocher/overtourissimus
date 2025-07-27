@@ -499,10 +499,7 @@
                 allTimeTouristCount = data.value || 0;
                 updateAllTimeStatsDisplay();
               })
-              .catch(err => {
-                console.error("Fehler beim Laden des All-Time-Zählers:", err);
-                updateAllTimeStatsDisplay();
-              });
+              .catch(err => console.error("Fehler beim Laden des All‑Time‑Zählers:", err));
             // ===== Ende Fetch beim Laden =====
         });
         window.addEventListener('resize', resizeCanvas);
