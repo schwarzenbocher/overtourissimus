@@ -81,7 +81,12 @@
         const allTimeStatsDisplay = document.getElementById('allTimeStatsDisplay');
         const screenshotButton = document.getElementById('screenshotButton'); 
         const screenshotButtonContainer = document.getElementById('screenshotButtonContainer'); 
-        const clearButtonWrapper = document.getElementById('clearButtonWrapper'); 
+        const clearButtonWrapper = document.getElementById('clearButtonWrapper');
+
+        // ===== CountAPI-Konfiguration =====
+        const COUNT_API_NAMESPACE = "schwarzenbocher.github.io";
+        const COUNT_API_KEY       = "touris";
+        // ===== Ende CountAPI-Konfiguration =====
 
         let isDrawing = false;
         let touristCount = 0; 
@@ -293,9 +298,16 @@
             ctx.restore(); // Stellt den vorherigen Canvas-Zustand wieder her
 
             touristCount++;
-            allTimeTouristCount++; 
+            // ===== CountAPI: globalen Zähler um 1 erhöhen =====
+            fetch(`https://api.countapi.xyz/hit/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`)
+              .then(res => res.json())
+              .then(data => {
+                allTimeTouristCount = data.value;
+                updateAllTimeStatsDisplay();
+              })
+              .catch(err => console.error("Fehler beim Aktualisieren des All-Time-Zählers:", err));
+            // ===== Ende CountAPI-Hit =====
             updateClearButtonText();
-            updateAllTimeStatsDisplay(); 
         }
         
         /**
@@ -479,7 +491,19 @@
 
         // Initialization on page load and resize
         window.addEventListener('load', () => {
-            resizeCanvas(); 
+            resizeCanvas();
+            // ===== CountAPI: All-Time-Zähler beim Start holen =====
+            fetch(`https://api.countapi.xyz/get/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`)
+              .then(res => res.json())
+              .then(data => {
+                allTimeTouristCount = data.value || 0;
+                updateAllTimeStatsDisplay();
+              })
+              .catch(err => {
+                console.error("Fehler beim Laden des All-Time-Zählers:", err);
+                updateAllTimeStatsDisplay();
+              });
+            // ===== Ende Fetch beim Laden =====
         });
         window.addEventListener('resize', resizeCanvas);
 
