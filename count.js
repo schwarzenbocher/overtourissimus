@@ -13,7 +13,38 @@ const clearButtonWrapper = document.getElementById('clearButtonWrapper');
 
 // CountAPI configuration
 const COUNT_API_NAMESPACE = 'overtourissimus.com';
-const COUNT_API_KEY = 'touris';
+const COUNT_API_KEY       = 'touris';
+const COUNT_API_BASE      = 'https://api.countapi.xyz';
+
+/**
+ * Liest den aktuellen Wert aus CountAPI (get).
+ * @returns {Promise<number>}
+ */
+async function fetchAllTimeCount() {
+  try {
+    const res  = await fetch(`${COUNT_API_BASE}/get/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`);
+    const data = await res.json();
+    return data.value ?? 0;
+  } catch (err) {
+    console.error('CountAPI GET failed:', err);
+    return 0;
+  }
+}
+
+/**
+ * Erhöht den Zähler um 1 und liefert den neuen Wert (hit).
+ * @returns {Promise<number>}
+ */
+async function hitAllTimeCount() {
+  try {
+    const res  = await fetch(`${COUNT_API_BASE}/hit/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`);
+    const data = await res.json();
+    return data.value ?? 0;
+  } catch (err) {
+    console.error('CountAPI HIT failed:', err);
+    return 0;
+  }
+}
 
 let isDrawing = false;
 let touristCount = 0;
@@ -198,14 +229,11 @@ function drawMannequin(x, y) {
 
   ctx.restore();
 
+  hitAllTimeCount().then(newVal => {
+    allTimeTouristCount = newVal;
+    updateAllTimeStatsDisplay();
+  });
   touristCount++;
-  fetch(`https://api.countapi.xyz/hit/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`)
-    .then((res) => res.json())
-    .then((data) => {
-      allTimeTouristCount = data.value;
-      updateAllTimeStatsDisplay();
-    })
-    .catch((err) => console.error('Fehler beim Aktualisieren des All-Time-Zählers:', err));
   updateClearButtonText();
 }
 
@@ -348,18 +376,10 @@ if (screenshotButton) {
   screenshotButton.addEventListener('click', takeScreenshot);
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   resizeCanvas();
-  fetch(`https://api.countapi.xyz/get/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`)
-    .then((res) => res.json())
-    .then((data) => {
-      allTimeTouristCount = data.value || 0;
-      updateAllTimeStatsDisplay();
-    })
-    .catch((err) => {
-      console.error('Fehler beim Laden des All-Time-Zählers:', err);
-      updateAllTimeStatsDisplay();
-    });
+  allTimeTouristCount = await fetchAllTimeCount();
+  updateAllTimeStatsDisplay();
 });
 window.addEventListener('resize', resizeCanvas);
 
