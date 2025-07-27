@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- HTML2Canvas Bibliothek für Screenshots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -21,14 +23,31 @@
         .font-outfit {
             font-family: 'Outfit', sans-serif;
         }
+        /* Zusätzliche Stilregel für allTimeStatsDisplay, um die vertikale Ausrichtung zu erzwingen */
+        #allTimeStatsDisplay {
+            /* Berechnet: text-xs ist ca. 12px. py-1 ist 0.25rem (4px) oben und unten. Gesamt 12 + 4 + 4 = 20px */
+            height: 20px; /* Feste Höhe setzen */
+            line-height: 20px; /* Zeilenhöhe gleich der Höhe setzen für vertikale Zentrierung */
+        }
     </style>
 </head>
 <body class="bg-black text-white flex flex-col items-center justify-center h-screen w-screen">
     <!-- Hauptcontainer füllt nun den gesamten Bildschirm ohne max-width/height Einschränkungen -->
     <div class="relative w-full h-full bg-black shadow-lg overflow-hidden">
-        <!-- "overtourissimus" Schriftzug - kein expliziter z-index, liegt hinter dem Canvas -->
-        <div class="absolute top-0 left-0 right-0 pt-2 pb-2"> 
-            <h1 class="text-center font-bold text-xl font-outfit tracking-widest">overtourissimus</h1>
+        <!-- "overtourissimus" Schriftzug - Z-Index auf 5 gesetzt, damit Touristen ihn verdecken können -->
+        <div class="absolute top-0 left-0 right-0 py-2 px-4 z-5 flex items-center justify-center"> 
+            <h1 class="text-center font-bold text-xl font-outfit tracking-widest leading-none">overtourissimus</h1>
+        </div>
+
+        <!-- Neuer Container für den Screenshot-Button - mit hohem Z-Index, damit er immer im Vordergrund ist -->
+        <div id="screenshotButtonContainer" class="absolute top-0 right-0 py-2 px-4 z-40 flex items-center justify-end">
+            <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white p-1.5 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center">
+                <!-- Minimalistisches Kamera SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
+                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
+                    <circle cx="12" cy="13" r="3"/>
+                </svg>
+            </button>
         </div>
 
         <!-- Canvas nun auch absolut positioniert und mit z-index:10, um über dem Text zu liegen -->
@@ -41,16 +60,16 @@
         </div>
     </div>
 
-    <!-- Container für Buttons und All-Time-Stats, z-30 stellt sicher, dass er über dem Canvas und dem Schriftzug ist -->
-    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-2 z-30">
-        <!-- Clear Button -->
+    <!-- Container für "Clear Touris" Button -->
+    <div id="clearButtonWrapper" class="absolute bottom-[44px] left-1/2 -translate-x-1/2 z-30">
         <button id="clearButton" class="font-outfit px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm rounded-md shadow-md w-56 text-center">
             clear 0 touris
         </button>
-        <!-- All Time Generated Touris Display -->
-        <div id="allTimeStatsDisplay" class="font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-56 text-center border border-gray-700">
-            0 all time generated touris
-        </div>
+    </div>
+
+    <!-- Container für "All Time Generated Touris" Display - bleibt immer sichtbar -->
+    <div id="allTimeStatsDisplay" class="absolute bottom-4 left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-56 text-center border border-gray-700 flex items-center justify-center z-30">
+        0 all time generated touris
     </div>
 
     <script>
@@ -60,7 +79,10 @@
         const messageText = document.getElementById('messageText');
         const clearButton = document.getElementById('clearButton');
         const allTimeStatsDisplay = document.getElementById('allTimeStatsDisplay');
-        
+        const screenshotButton = document.getElementById('screenshotButton'); 
+        const screenshotButtonContainer = document.getElementById('screenshotButtonContainer'); 
+        const clearButtonWrapper = document.getElementById('clearButtonWrapper'); // Neuer Referenz
+
         let isDrawing = false;
         let touristCount = 0; 
         let allTimeTouristCount = 0; 
@@ -72,6 +94,10 @@
         const HOLD_TO_START_LOOP_DELAY = 150; // Verzögerung in ms, bevor Halten als kontinuierliches Zeichnen gilt
 
 
+        /**
+         * Zeigt eine Nachricht in der benutzerdefinierten Nachrichtenbox an.
+         * @param {string} message - Die anzuzeigende Nachricht.
+         */
         function showMessage(message) {
             if (messageText) {
                 messageText.textContent = message;
@@ -81,46 +107,62 @@
             }
         }
 
+        /**
+         * Aktualisiert den Text des "Clear"-Buttons mit der aktuellen Anzahl der Touristen.
+         */
         function updateClearButtonText() {
             if (clearButton) {
                 clearButton.textContent = `clear ${touristCount} touris`;
             }
         }
 
+        /**
+         * Aktualisiert die Anzeige der insgesamt generierten Touristen.
+         */
         function updateAllTimeStatsDisplay() {
             if (allTimeStatsDisplay) {
                 allTimeStatsDisplay.textContent = `${allTimeTouristCount} all time generated touris`;
             }
         }
 
+        /**
+         * Löscht den Canvas und setzt den aktuellen Touristen-Zähler zurück.
+         */
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             touristCount = 0; 
             updateClearButtonText();
         }
 
+        // Event Listener für den Clear Button
         if (clearButton) {
             clearButton.addEventListener('click', clearCanvas);
         }
 
+        // Farben für die Mannequins
         const skinTones = ['#FAD2A5', '#E0B49A', '#C89F82', '#A9816B', '#8B6A56', '#6F5444'];
         const hairColors = ['#4A2C2A', '#6D4C41', '#B7A68E', '#D1C29B', '#F5E6CC', '#2C2C2C', '#A52A2A', '#FFDB58', '#E6E6FA'];
         const topColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#BB8FCE', '#82E0AA', '#FFA07A', '#20B2AA', '#DDA0DD'];
         const pantColors = ['#5D4037', '#795548', '#3E2723', '#1E88E5', '#424242', '#607D8B', '#2c3e50', '#95a5a6'];
 
+        /**
+         * Zeichnet ein Mannequin auf dem Canvas an der angegebenen Position.
+         * @param {number} x - Die X-Koordinate auf dem Bildschirm.
+         * @param {number} y - Die Y-Koordinate auf dem Bildschirm.
+         */
         function drawMannequin(x, y) {
             const rect = canvas.getBoundingClientRect();
             const canvasX = x - rect.left;
             const canvasY = y - rect.top;
-            const baseScale = 0.4 + Math.random() * 0.35;
+            const baseScale = 0.4 + Math.random() * 0.35; // Zufällige Skalierung für Varianz
             const personLimbColor = skinTones[Math.floor(Math.random() * skinTones.length)];
             const personHeadColor = hairColors[Math.floor(Math.random() * hairColors.length)];
             const personTopColor = topColors[Math.floor(Math.random() * topColors.length)];
             const personPantColor = pantColors[Math.floor(Math.random() * pantColors.length)];
 
-            ctx.save();
-            ctx.translate(canvasX, canvasY);
-            ctx.scale(baseScale, baseScale);
+            ctx.save(); // Speichert den aktuellen Canvas-Zustand
+            ctx.translate(canvasX, canvasY); // Verschiebt den Ursprung zum Zeichenpunkt
+            ctx.scale(baseScale, baseScale); // Skaliert das Mannequin
 
             const headRadius = 15;
             const headY = -35;
@@ -139,14 +181,15 @@
             const longPantsHeight = 30;
             const longGarmentHeight = 40; 
 
+            // Zufällige Auswahl des Kleidungsstils
             if (clothingRoll < 1/3) { 
-                clothingType = 'short';
+                clothingType = 'short'; // Kurze Hosen
                 currentPantsHeight = shortPantsHeight;
             } else if (clothingRoll < (1/3 + 1/2)) { 
-                clothingType = 'longPants';
+                clothingType = 'longPants'; // Lange Hosen
                 currentPantsHeight = longPantsHeight;
             } else { 
-                clothingType = 'longGarment';
+                clothingType = 'longGarment'; // Langes Kleidungsstück (z.B. Kleid, Mantel)
                 currentPantsHeight = longGarmentHeight;
             }
 
@@ -154,6 +197,7 @@
             ctx.lineWidth = limbThickness;
             ctx.lineCap = 'round'; 
 
+            // Beine zeichnen, abhängig vom Kleidungsstil
             if (clothingType === 'short') {
                 const legOriginY = pantsStartY; 
                 const legLineLengthBelowPants = 25; 
@@ -175,9 +219,11 @@
                 ctx.stroke();
             }
 
+            // Hosen/Kleidungsstück zeichnen
             ctx.fillStyle = personPantColor;
             ctx.fillRect(-pantsWidth / 2, pantsStartY, pantsWidth, currentPantsHeight);
 
+            // Füße zeichnen, je nach Kleidungsstil
             if (clothingType === 'longPants') {
                 const footStubLength = 5; 
                 const footStubY = pantsStartY + currentPantsHeight; 
@@ -188,12 +234,12 @@
 
                 ctx.beginPath();
                 ctx.moveTo(-footStubXOffset, footStubY);
-                ctx.lineTo(-footStubXOffset, footStubY + footStubLength);
+                ctx.lineTo(-footStubXOffset, footStubY + footStubLength); 
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.moveTo(footStubXOffset, footStubY);
-                ctx.lineTo(footStubXOffset, footStubY + footStubLength);
+                ctx.lineTo(footStubXOffset, footStubY + footStubLength); 
                 ctx.stroke();
             } else if (clothingType === 'longGarment') {
                 const footPeekLength = 4; 
@@ -242,7 +288,7 @@
             ctx.fill();
             ctx.closePath();
 
-            ctx.restore();
+            ctx.restore(); // Stellt den vorherigen Canvas-Zustand wieder her
 
             touristCount++;
             allTimeTouristCount++; 
@@ -250,6 +296,9 @@
             updateAllTimeStatsDisplay(); 
         }
         
+        /**
+         * Die Haupt-Game-Loop-Funktion, die kontinuierlich Mannequins zeichnet, wenn isDrawing true ist.
+         */
         function gameLoop() {
             if (!isDrawing) { 
                 gameLoopTimeoutId = null; 
@@ -259,6 +308,10 @@
             gameLoopTimeoutId = setTimeout(gameLoop, GAME_LOOP_INTERVAL); 
         }
 
+        /**
+         * Aktualisiert die zuletzt bekannte Maus- oder Touch-Position.
+         * @param {Event} event - Das Maus- oder Touch-Event.
+         */
         function updateLastKnownPosition(event) {
             if (event.touches && event.touches.length > 0) {
                 lastKnownX = event.touches[0].clientX;
@@ -269,7 +322,16 @@
             }
         }
 
+        /**
+         * Startet die Zeicheninteraktion bei Maus-Down oder Touch-Start.
+         * @param {Event} event - Das Maus- oder Touch-Event.
+         */
         function startDrawingInteraction(event) {
+            // Verhindert, dass das Zeichnen ausgelöst wird, wenn auf den Screenshot-Button geklickt wird
+            if (event.target === screenshotButton || event.target.closest('#screenshotButton')) {
+                return;
+            }
+
             if (event.target !== canvas) {
                 return;
             }
@@ -294,6 +356,10 @@
             window.addEventListener('mouseleave', stopDrawingInteraction); 
         }
 
+        /**
+         * Behandelt Maus-Move- oder Touch-Move-Events zum Zeichnen.
+         * @param {Event} event - Das Maus- oder Touch-Event.
+         */
         function handleDrawingMove(event) {
             if (!isDrawing) return;
             
@@ -312,6 +378,9 @@
             }
         }
 
+        /**
+         * Stoppt die Zeicheninteraktion bei Maus-Up oder Touch-End.
+         */
         function stopDrawingInteraction() {
             if (!isDrawing) return; 
             isDrawing = false;
@@ -326,7 +395,9 @@
             window.removeEventListener('mouseleave', stopDrawingInteraction);
         }
 
-
+        /**
+         * Passt die Canvas-Größe an die Fenstergröße an und löscht den Canvas.
+         */
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -337,19 +408,65 @@
             updateAllTimeStatsDisplay(); 
         }
 
+        /**
+         * Erstellt einen Screenshot des gesamten Body-Elements und bietet ihn zum Download an.
+         */
+        function takeScreenshot() {
+            // Temporarily hide the message box if it's visible, so it's not included in the screenshot
+            const wasMessageBoxHidden = messageBox.classList.contains('hidden');
+            if (!wasMessageBoxHidden) {
+                messageBox.classList.add('hidden');
+            }
+
+            // Hide the clear button wrapper and screenshot button container before taking the screenshot
+            clearButtonWrapper.style.display = 'none';
+            screenshotButtonContainer.style.display = 'none'; 
+
+            html2canvas(document.body, {
+                useCORS: true, // Wichtig, wenn Inhalte von anderen Ursprüngen geladen werden
+                allowTaint: true, // Erlaubt das Rendern von Inhalten, die die Canvas "verunreinigen" könnten
+            }).then(canvas => {
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = 'overtourissimus_screenshot.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }).catch(error => {
+                console.error("Fehler beim Erstellen des Screenshots:", error);
+            }).finally(() => {
+                // Restore the message box visibility if it was hidden
+                if (!wasMessageBoxHidden) {
+                    messageBox.classList.remove('hidden');
+                }
+                // Show the clear button wrapper and screenshot button container again
+                clearButtonWrapper.style.display = 'flex'; // Wiederherstellen des Flex-Verhaltens
+                screenshotButtonContainer.style.display = 'flex'; // Wiederherstellen des Flex-Verhaltens
+            });
+        }
+
+
+        // Event listeners for mouse and touch interactions
         canvas.addEventListener('touchstart', startDrawingInteraction, { passive: false });
         canvas.addEventListener('mousedown', startDrawingInteraction);
         
+        // Event listener for the Screenshot button
+        if (screenshotButton) {
+            screenshotButton.addEventListener('click', takeScreenshot);
+        }
 
+        // Initialization on page load and resize
         window.addEventListener('load', () => {
             resizeCanvas(); 
         });
         window.addEventListener('resize', resizeCanvas);
 
+        // Error handling for the canvas context
         if (!ctx) {
-            console.error("Fehler: 2D-Kontext konnte nicht vom Canvas abgerufen werden.");
+            console.error("Error: 2D context could not be retrieved from canvas.");
             if (messageBox && messageText) {
-                showMessage("Fehler: Canvas wird nicht unterstützt.");
+                showMessage("Error: Canvas is not supported.");
             }
         }
     </script>
