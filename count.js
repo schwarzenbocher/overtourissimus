@@ -21,12 +21,15 @@ const COUNT_API_BASE      = 'https://api.countapi.xyz';
  * @returns {Promise<number>}
  */
 async function fetchAllTimeCount() {
+  const url = `${COUNT_API_BASE}/get/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`;
+  console.log('[CountAPI] GET ➜', url);
   try {
-    const res  = await fetch(`${COUNT_API_BASE}/get/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`);
+    const res  = await fetch(url);
     const data = await res.json();
+    console.log('[CountAPI] GET response ➜', data);
     return data.value ?? 0;
   } catch (err) {
-    console.error('CountAPI GET failed:', err);
+    console.error('[CountAPI] GET error ➜', err);
     return 0;
   }
 }
@@ -36,12 +39,15 @@ async function fetchAllTimeCount() {
  * @returns {Promise<number>}
  */
 async function hitAllTimeCount() {
+  const url = `${COUNT_API_BASE}/hit/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`;
+  console.log('[CountAPI] HIT ➜', url);
   try {
-    const res  = await fetch(`${COUNT_API_BASE}/hit/${COUNT_API_NAMESPACE}/${COUNT_API_KEY}`);
+    const res  = await fetch(url);
     const data = await res.json();
+    console.log('[CountAPI] HIT response ➜', data);
     return data.value ?? 0;
   } catch (err) {
-    console.error('CountAPI HIT failed:', err);
+    console.error('[CountAPI] HIT error ➜', err);
     return 0;
   }
 }
