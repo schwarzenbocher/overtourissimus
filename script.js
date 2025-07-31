@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- JSONBin.io Configuration ---
     // This service is used to store and retrieve the global counter.
     const BIN_ID = '688bae8df7e7a370d1f12377';
-    const API_KEY = '$2a$10$4ml04tUU/v8AeAWTlckjiuKZKaa8PBiqZthe10FEwkHRfzG7Fu3Sy'; // *** UPDATED API KEY ***
-    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`; // Use /latest to get the newest version without metadata
+    const API_KEY = '$2a$10$4ml04tUU/v8AeAWTlckjiuKZKaa8PBiqZthe10FEwkHRfzG7Fu3Sy';
+    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
     // --- State Variables ---
     let isDrawing = false;
@@ -34,20 +34,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Fetches the current global counter value from JSONBin.
+     * This version is more robust and handles empty or new bins.
      * @returns {Promise<number>} The number of tourists.
      */
     async function getCounterValue() {
         try {
-            const response = await fetch(BIN_URL, {
+            // Use the /latest endpoint to get the most recent version without extra metadata overhead
+            const response = await fetch(`${BIN_URL}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
             if (!response.ok) {
+                // If the bin is not found (404), it's likely new. Treat count as 0.
+                if (response.status === 404) {
+                    console.log("Bin not found, assuming new bin with count 0.");
+                    return 0;
+                }
                 const errorData = await response.text();
                 throw new Error(`API GET Error: ${response.status} ${response.statusText} - ${errorData}`);
             }
             const data = await response.json();
-            // The structure for /latest is slightly different
-            return data.record.touristCount || 0;
+            
+            // Check if the record and the touristCount property exist
+            if (data && data.record && typeof data.record.touristCount !== 'undefined') {
+                return data.record.touristCount;
+            }
+            // If the bin is empty or malformed, return 0 as a safe default
+            return 0;
         } catch (err) {
             console.error("Error fetching counter:", err);
             showMessage("Could not load global statistics. Please check API Key and Bin ID.");
@@ -57,34 +69,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Updates the global counter value on JSONBin.
+     * This version is simplified to only perform a PUT request.
      * @param {number} newTotalCount - The new, absolute total value.
      * @returns {Promise<boolean>} True on success, false on failure.
      */
     async function updateCounterValue(newTotalCount) {
         try {
-            // To update, we fetch the whole bin, modify it, and put it back.
-            // This is a limitation of the free/simple JSONBin API usage.
-            const getResponse = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                 headers: { 'X-Master-Key': API_KEY }
-            });
-            if (!getResponse.ok) throw new Error('Failed to fetch bin for update');
-            const binData = await getResponse.json();
-            
-            // Update the count within the record object
-            binData.record.touristCount = newTotalCount;
+            const payload = { touristCount: newTotalCount };
 
-            const putResponse = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            const response = await fetch(BIN_URL, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Master-Key': API_KEY
                 },
-                body: JSON.stringify(binData.record) // Only send the record back
+                body: JSON.stringify(payload)
             });
 
-            if (!putResponse.ok) {
-                 const errorData = await putResponse.text();
-                 throw new Error(`API PUT Error: ${putResponse.status} ${putResponse.statusText} - ${errorData}`);
+            if (!response.ok) {
+                 const errorData = await response.text();
+                 throw new Error(`API PUT Error: ${response.status} ${response.statusText} - ${errorData}`);
             }
             return true;
         } catch (err) {
