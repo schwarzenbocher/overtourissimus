@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- JSONBin.io Configuration ---
     // This service is used to store and retrieve the global counter.
     const BIN_ID = '688bae8df7e7a370d1f12377';
-    const API_KEY = '$2a$10$OJmFOjUkcjTC/ZlvP5LiiecO3/y59vL2BwSnzpcNX1m8TKQPpdGvm';
-    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    const API_KEY = '$2a$10$4ml04tUU/v8AeAWTlckjiuKZKaa8PBiqZthe10FEwkHRfzG7Fu3Sy'; // *** UPDATED API KEY ***
+    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`; // Use /latest to get the newest version without metadata
 
     // --- State Variables ---
     let isDrawing = false;
@@ -41,12 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(BIN_URL, {
                 headers: { 'X-Master-Key': API_KEY }
             });
-            if (!response.ok) throw new Error(`API GET Error: ${response.statusText}`);
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`API GET Error: ${response.status} ${response.statusText} - ${errorData}`);
+            }
             const data = await response.json();
+            // The structure for /latest is slightly different
             return data.record.touristCount || 0;
         } catch (err) {
             console.error("Error fetching counter:", err);
-            showMessage("Could not load global statistics.");
+            showMessage("Could not load global statistics. Please check API Key and Bin ID.");
             return 0; // Fallback value
         }
     }
@@ -58,15 +62,30 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function updateCounterValue(newTotalCount) {
         try {
-            const response = await fetch(BIN_URL, {
+            // To update, we fetch the whole bin, modify it, and put it back.
+            // This is a limitation of the free/simple JSONBin API usage.
+            const getResponse = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                 headers: { 'X-Master-Key': API_KEY }
+            });
+            if (!getResponse.ok) throw new Error('Failed to fetch bin for update');
+            const binData = await getResponse.json();
+            
+            // Update the count within the record object
+            binData.record.touristCount = newTotalCount;
+
+            const putResponse = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Master-Key': API_KEY
                 },
-                body: JSON.stringify({ touristCount: newTotalCount })
+                body: JSON.stringify(binData.record) // Only send the record back
             });
-            if (!response.ok) throw new Error(`API PUT Error: ${response.statusText}`);
+
+            if (!putResponse.ok) {
+                 const errorData = await putResponse.text();
+                 throw new Error(`API PUT Error: ${putResponse.status} ${putResponse.statusText} - ${errorData}`);
+            }
             return true;
         } catch (err) {
             console.error("Error updating counter:", err);
