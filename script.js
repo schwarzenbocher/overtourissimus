@@ -81,7 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function showMessage(message) {
         if (messageText) messageText.textContent = message;
-        if (messageBox) messageBox.classList.remove('hidden');
+        if (messageBox) messageBox.style.display = 'block';
+    }
+
+    /**
+     * Hides the custom message box.
+     */
+    function hideMessage() {
+        if (messageBox) messageBox.style.display = 'none';
     }
 
     /**
@@ -325,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         updateLastKnownPosition(event);
         
-        // Ensure the game loop is running
+        // Ensure the game loop is running if it's not already scheduled
         if (gameLoopTimeoutId === null) {
             gameLoop();
         }
@@ -369,13 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function takeScreenshot() {
         // Temporarily hide UI elements for a clean screenshot
-        const wasMessageBoxHidden = messageBox.classList.contains('hidden');
-        if (!wasMessageBoxHidden) messageBox.classList.add('hidden');
+        const wasMessageBoxHidden = messageBox.style.display === 'none';
+        if (!wasMessageBoxHidden) hideMessage();
         
         clearButtonWrapper.style.display = 'none';
         screenshotButtonContainer.style.display = 'none';
         
         // Make stats text more visible on the screenshot
+        const originalAllTimeStyle = { bg: allTimeStatsDisplay.style.backgroundColor, border: allTimeStatsDisplay.style.border, color: allTimeStatsDisplay.style.color };
+        const originalWorldwideStyle = { bg: worldwideStatsDisplay.style.backgroundColor, border: worldwideStatsDisplay.style.border, color: worldwideStatsDisplay.style.color };
+
         allTimeStatsDisplay.style.backgroundColor = 'transparent';
         allTimeStatsDisplay.style.border = 'none';
         allTimeStatsDisplay.style.color = 'white';
@@ -416,17 +426,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } finally {
             // Restore UI elements
-            if (!wasMessageBoxHidden) messageBox.classList.remove('hidden');
+            if (!wasMessageBoxHidden) showMessage(messageText.textContent);
             
             clearButtonWrapper.style.display = 'block';
             screenshotButtonContainer.style.display = 'flex';
             
-            allTimeStatsDisplay.style.backgroundColor = '';
-            allTimeStatsDisplay.style.border = '';
-            allTimeStatsDisplay.style.color = '';
-            worldwideStatsDisplay.style.backgroundColor = '';
-            worldwideStatsDisplay.style.border = '';
-            worldwideStatsDisplay.style.color = '';
+            allTimeStatsDisplay.style.backgroundColor = originalAllTimeStyle.bg;
+            allTimeStatsDisplay.style.border = originalAllTimeStyle.border;
+            allTimeStatsDisplay.style.color = originalAllTimeStyle.color;
+            worldwideStatsDisplay.style.backgroundColor = originalWorldwideStyle.bg;
+            worldwideStatsDisplay.style.border = originalWorldwideStyle.border;
+            worldwideStatsDisplay.style.color = originalWorldwideStyle.color;
         }
     }
 
@@ -441,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- Event Listeners Setup ---
-        closeMessageBoxButton.addEventListener('click', () => messageBox.classList.add('hidden'));
+        closeMessageBoxButton.addEventListener('click', hideMessage);
         clearButton.addEventListener('click', clearCanvasAndSync);
         canvas.addEventListener('touchstart', startDrawingInteraction, { passive: false });
         canvas.addEventListener('mousedown', startDrawingInteraction);
