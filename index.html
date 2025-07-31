@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>overtourissimus</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div id="mainContainer">
+        <!-- Header Title -->
+        <div id="header">
+            <h1 class="font-outfit">overtourissimus</h1>
+        </div>
 
+        <!-- Screenshot Button Container -->
+        <div id="screenshotButtonContainer">
+            <button id="screenshotButton">
+                <!-- Camera SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
+                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
+                    <circle cx="12" cy="13" r="3"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Canvas for drawing -->
+        <canvas id="overtourismCanvas"></canvas>
+
+        <!-- Message Box for notifications -->
+        <div id="messageBox" class="hidden">
+            <p id="messageText"></p>
+            <button id="messageBoxOkButton">OK</button>
+        </div>
+    </div>
+
+    <!-- "Remove Touris" Button -->
+    <div id="clearButtonWrapper">
+        <button id="clearButton" class="font-outfit">remove 0 touris</button>
+    </div>
+
+    <!-- "Touris Removed" Display -->
+    <div id="allTimeStatsDisplay" class="font-outfit">
+        0 touris removed
+    </div>
+    
+    <!-- "Worldwide Removed Touris" Display -->
+    <div id="worldwideStatsDisplay" class="font-outfit">
+        loading worldwide stats...
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- External JavaScript File -->
+    <script src="script.js"></script>
+</body>
+</html>
