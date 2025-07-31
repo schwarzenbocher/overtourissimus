@@ -4,58 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>overtourissimus</title>
-    <!-- External Stylesheet -->
-    <link rel="stylesheet" href="styles.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <!-- HTML2Canvas Library for Screenshots -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Main container -->
-    <div class="main-container">
-        <!-- Title -->
-        <div class="title-container">
-            <h1 class="title">overtourissimus</h1>
+    <div id="mainContainer">
+        <div id="titleContainer">
+            <h1>overtourissimus</h1>
         </div>
 
-        <!-- Screenshot Button -->
-        <div id="screenshotButtonContainer" class="screenshot-button-container">
-            <button id="screenshotButton" class="screenshot-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon">
+        <div id="screenshotButtonContainer">
+            <button id="screenshotButton">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
                     <circle cx="12" cy="13" r="3"/>
                 </svg>
             </button>
         </div>
 
-        <!-- Canvas for drawing -->
         <canvas id="overtourismCanvas"></canvas>
 
-        <!-- Message Box for notifications -->
-        <div id="messageBox" class="message-box">
+        <div id="messageBox">
             <p id="messageText"></p>
-            <button id="messageBoxOkButton" class="ok-button">OK</button>
+            <button id="okButton">OK</button>
         </div>
     </div>
 
-    <!-- "Remove Touris" Button -->
-    <div id="clearButtonWrapper" class="clear-button-wrapper">
-        <button id="clearButton" class="clear-button font-outfit">remove 0 touris</button>
+    <div id="clearButtonWrapper">
+        <button id="clearButton">remove 0 touris</button>
     </div>
 
-    <!-- "Touris Generated" Display -->
-    <div id="allTimeStatsDisplay" class="stats-display font-outfit">
+    <div id="allTimeStatsDisplay">
         0 touris generated
     </div>
     
-    <!-- "Worldwide Removed Touris" Display -->
-    <div id="worldwideStatsDisplay" class="stats-display font-outfit">
+    <div id="worldwideStatsDisplay">
         loading global stats...
     </div>
 
-    <!-- External JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
