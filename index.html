@@ -99,6 +99,7 @@
         const BIN_ID = '688bae8df7e7a370d1f12377';
         const API_KEY = '$2a$10$OJmFOjUkcjTC/ZlvP5LiiecO3/y59vL2BwSnzpcNX1m8TKQPpdGvm';
         const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        const BIN_GET_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
         // --- Ende der JSONBin.io Konfiguration ---
 
         let isDrawing = false;
@@ -117,7 +118,7 @@
          */
         async function getCounterValue() {
             try {
-                const response = await fetch(BIN_URL, {
+                const response = await fetch(BIN_GET_URL, {
                     headers: { 'X-Master-Key': API_KEY }
                 });
                 if (!response.ok) throw new Error(`API GET Error: ${response.statusText}`);
