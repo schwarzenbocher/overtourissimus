@@ -4,46 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>overtourissimus</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="mainContainer">
-        <div id="titleContainer">
-            <h1>overtourissimus</h1>
+<body class="bg-black text-white flex flex-col items-center justify-center h-screen w-screen">
+    <!-- Main container -->
+    <div class="relative w-full h-full bg-black shadow-lg overflow-hidden">
+        
+        <!-- Header Title -->
+        <div class="absolute top-0 left-0 right-0 px-4 h-[52px] z-20 flex items-center justify-center"> 
+            <h1 class="text-center font-bold text-xl font-outfit tracking-widest leading-none">overtourissimus</h1>
         </div>
 
-        <div id="screenshotButtonContainer">
-            <button id="screenshotButton">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Screenshot Button -->
+        <div id="screenshotButtonContainer" class="absolute top-0 right-0 py-2 px-4 z-40 flex items-center justify-end">
+            <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white p-1.5 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
                     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
                     <circle cx="12" cy="13" r="3"/>
                 </svg>
             </button>
         </div>
 
-        <canvas id="overtourismCanvas"></canvas>
+        <!-- Canvas for drawing -->
+        <canvas id="overtourismCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
 
-        <div id="messageBox">
-            <p id="messageText"></p>
-            <button id="okButton">OK</button>
+        <!-- Message Box for notifications -->
+        <div id="messageBox" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white p-6 rounded-lg shadow-xl hidden z-50 text-center">
+            <p id="messageText" class="mb-4"></p>
+            <button id="closeMessageBox" class="mt-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-medium">OK</button>
         </div>
     </div>
 
-    <div id="clearButtonWrapper">
-        <button id="clearButton">remove 0 touris</button>
+    <!-- 'Remove Touris' Button -->
+    <div id="clearButtonWrapper" class="absolute bottom-[72px] left-1/2 -translate-x-1/2 z-30">
+        <button id="clearButton" class="font-outfit px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm rounded-md shadow-md w-96 text-center">
+            remove 0 touris
+        </button>
     </div>
 
-    <div id="allTimeStatsDisplay">
+    <!-- Session statistics display -->
+    <div id="allTimeStatsDisplay" class="absolute bottom-[44px] left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-96 text-center border border-gray-700 flex items-center justify-center z-30">
         0 touris generated
     </div>
     
-    <div id="worldwideStatsDisplay">
+    <!-- Global statistics display -->
+    <div id="worldwideStatsDisplay" class="absolute bottom-4 left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-96 text-center border border-gray-700 flex items-center justify-center z-30">
         loading global stats...
     </div>
 
+    <!-- Custom Script -->
     <script src="script.js"></script>
 </body>
 </html>
