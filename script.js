@@ -11,10 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const screenshotButtonContainer = document.getElementById('screenshotButtonContainer');
     const clearButtonWrapper = document.getElementById('clearButtonWrapper');
 
-    // --- JSONBin.io Configuration ---
-    const BIN_ID = '688bae8df7e7a370d1f12377';
-    const API_KEY = '$2a$10$OJmFOjUkcjTC/ZlvP5LiiecO3/y59vL2BwSnzpcNX1m8TKQPpdGvm';
-    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    // --- Simulated API Configuration ---
+    let globalRemovedCount = 3614; // Initial base count
 
     let isDrawing = false;
     let touristCount = 0;
@@ -26,38 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const GAME_LOOP_INTERVAL = 18;
     const HOLD_TO_START_LOOP_DELAY = 150;
 
+    // --- Simulated API Functions to prevent network errors ---
     async function getCounterValue() {
-        try {
-            const response = await fetch(BIN_URL, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
-            if (!response.ok) throw new Error(`API GET Error: ${response.statusText}`);
-            const data = await response.json();
-            return data.record.touristCount || 0;
-        } catch (err) {
-            console.error("Fehler beim Abrufen des Zählerstands:", err);
-            showMessage("Konnte globale Statistik nicht laden.");
-            return 0; // Fallback
-        }
+        // Returns the current count for the session.
+        return Promise.resolve(globalRemovedCount);
     }
 
     async function updateCounterValue(newTotalCount) {
-        try {
-            const response = await fetch(BIN_URL, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': API_KEY
-                },
-                body: JSON.stringify({ touristCount: newTotalCount })
-            });
-            if (!response.ok) throw new Error(`API PUT Error: ${response.statusText}`);
-            return true;
-        } catch (err) {
-            console.error("Fehler beim Aktualisieren des Zählerstands:", err);
-            showMessage("Speichern fehlgeschlagen. Bitte erneut versuchen.");
-            return false;
-        }
+        // "Saves" the new count for the session.
+        globalRemovedCount = newTotalCount;
+        return Promise.resolve(true);
     }
 
     function showMessage(message) {
@@ -420,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     updateAllTimeStatsDisplay();
     // Set initial static values as per requirement
-    worldwideStatsDisplay.textContent = `3,614 touris removed globally`;
+    worldwideStatsDisplay.textContent = `${globalRemovedCount.toLocaleString('de-DE')} touris removed globally`;
 
     window.addEventListener('resize', resizeCanvas);
 
@@ -428,4 +404,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Error: 2D context could not be retrieved from canvas.");
         showMessage("Error: Canvas is not supported.");
     }
-});s
+});
