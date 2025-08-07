@@ -7,41 +7,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <!-- HTML2Canvas Bibliothek für Screenshots -->
+    <!-- HTML2Canvas library for screenshots -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         body {
             font-family: "Inter", sans-serif;
-            overflow: hidden; /* Verhindert Scrollen der gesamten Seite */
-            margin: 0; /* Stellt sicher, dass kein Standard-Margin vorhanden ist */
+            overflow: hidden; /* Prevents scrolling of the entire page */
+            margin: 0; /* Ensures no default margin */
         }
         canvas {
-            touch-action: none; /* Verhindert Standard-Touch-Aktionen wie Scrollen/Zoomen auf dem Canvas-Element selbst */
-            display: block; /* Um mögliche untere Abstände zu entfernen */
+            touch-action: none; /* Prevents default touch actions like scroll/zoom on the canvas element itself */
+            display: block; /* To remove possible bottom spacing */
         }
         .font-outfit {
             font-family: 'Outfit', sans-serif;
         }
-        /* Zusätzliche Stilregel für die Statistik-Anzeigen, um die vertikale Ausrichtung zu erzwingen */
+        /* Additional style rule for the statistics displays to enforce vertical alignment */
         #allTimeStatsDisplay, #worldwideStatsDisplay {
-            height: 20px; /* Feste Höhe setzen */
-            line-height: 20px; /* Zeilenhöhe gleich der Höhe setzen für vertikale Zentrierung */
+            height: 20px; /* Set fixed height */
+            line-height: 20px; /* Set line-height equal to height for vertical centering */
         }
     </style>
 </head>
 <body class="bg-black text-white flex flex-col items-center justify-center h-screen w-screen">
-    <!-- Hauptcontainer füllt nun den gesamten Bildschirm ohne max-width/height Einschränkungen -->
+    <!-- Main container now fills the entire screen without max-width/height constraints -->
     <div class="relative w-full h-full bg-black shadow-lg overflow-hidden">
-        <!-- "overtourissimus" Schriftzug - Vertikal am Icon ausgerichtet -->
+        <!-- "overtourissimus" text - Vertically aligned with the icon -->
         <div class="absolute top-0 left-0 right-0 px-4 h-[52px] z-5 flex items-center justify-center"> 
             <h1 class="text-center font-bold text-xl font-outfit tracking-widest leading-none">overtourissimus</h1>
         </div>
 
-        <!-- Neuer Container für den Screenshot-Button - mit hohem Z-Index, damit er immer im Vordergrund ist -->
+        <!-- New container for the screenshot button - with a high z-index to always be in the foreground -->
         <div id="screenshotButtonContainer" class="absolute top-0 right-0 py-2 px-4 z-40 flex items-center justify-end">
             <button id="screenshotButton" class="bg-gray-800 hover:bg-gray-900 text-white p-1.5 rounded-md shadow-md transition-colors duration-200 flex items-center justify-center">
-                <!-- Minimalistisches Kamera SVG Icon -->
+                <!-- Minimalist camera SVG icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera">
                     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"/>
                     <circle cx="12" cy="13" r="3"/>
@@ -49,29 +49,29 @@
             </button>
         </div>
 
-        <!-- Canvas nun auch absolut positioniert und mit z-index:10, um über dem Text zu liegen -->
+        <!-- Canvas now also absolutely positioned and with z-index:10 to be above the text -->
         <canvas id="overtourismCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
 
-        <!-- Message Box - bleibt auf der höchsten Ebene -->
+        <!-- Message Box - remains on the highest level -->
         <div id="messageBox" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-800 text-white p-6 rounded-lg shadow-xl hidden z-50 text-center">
             <p id="messageText" class="mb-4"></p>
             <button onclick="document.getElementById('messageBox').classList.add('hidden')" class="mt-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-medium">OK</button>
         </div>
     </div>
 
-    <!-- Container für "Remove Touris" Button -->
+    <!-- Container for "Remove Touris" Button -->
     <div id="clearButtonWrapper" class="absolute bottom-[72px] left-1/2 -translate-x-1/2 z-30">
         <button id="clearButton" class="font-outfit px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm rounded-md shadow-md w-96 text-center">
             remove 0 touris
         </button>
     </div>
 
-    <!-- Container für "Touris Generated" Display -->
+    <!-- Container for "Touris Generated" Display -->
     <div id="allTimeStatsDisplay" class="absolute bottom-[44px] left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-96 text-center border border-gray-700 flex items-center justify-center z-30">
         0 touris generated
     </div>
     
-    <!-- Container für "Worldwide Removed Touris" Display -->
+    <!-- Container for "Worldwide Removed Touris" Display -->
     <div id="worldwideStatsDisplay" class="absolute bottom-4 left-1/2 -translate-x-1/2 font-outfit px-4 py-1 bg-black text-gray-400 text-xs rounded-md w-96 text-center border border-gray-700 flex items-center justify-center z-30">
         loading global stats...
     </div>
@@ -89,18 +89,17 @@
         const screenshotButtonContainer = document.getElementById('screenshotButtonContainer'); 
         const clearButtonWrapper = document.getElementById('clearButtonWrapper'); 
 
-        // --- JSONBin.io Konfiguration ---
-        // Speichert den globalen Zählerstand.
+        // --- JSONBin.io Configuration ---
+        // Stores the global counter.
         // Setup:
-        // 1. Account auf JSONBin.io erstellen.
-        // 2. Ein neues, privates Bin mit dem Inhalt { "touristCount": 0 } anlegen.
-        // 3. Die resultierende BIN_ID hier eintragen.
-        // 4. Einen API-Key ("X-Master-Key") erstellen und hier eintragen.
+        // 1. Create an account on JSONBin.io.
+        // 2. Create a new, private Bin with the content { "touristCount": 0 }.
+        // 3. Enter the resulting BIN_ID here.
+        // 4. Create an API key ("X-Master-Key") and enter it here.
         const BIN_ID = '688bae8df7e7a370d1f12377';
-        const API_KEY = '$2a$10$OJmFOjUkcjTC/ZlvP5LiiecO3/y59vL2BwSnzpcNX1m8TKQPpdGvm';
+        const API_KEY = '$2a$10$4ml04tUU/v8AeAWTlckjiuKZKaa8PBiqZthe10FEwkHRfzG7Fu3Sy'; // <-- UPDATED API KEY
         const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-        const BIN_GET_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
-        // --- Ende der JSONBin.io Konfiguration ---
+        // --- End of JSONBin.io Configuration ---
 
         let isDrawing = false;
         let touristCount = 0; 
@@ -109,32 +108,32 @@
         let lastKnownY = 0;
         let gameLoopTimeoutId = null; 
         
-        const GAME_LOOP_INTERVAL = 18; // Intervall für kontinuierliches Zeichnen
-        const HOLD_TO_START_LOOP_DELAY = 150; // Verzögerung in ms, bevor Halten als kontinuierliches Zeichnen gilt
+        const GAME_LOOP_INTERVAL = 18; // Interval for continuous drawing
+        const HOLD_TO_START_LOOP_DELAY = 150; // Delay in ms before holding is considered continuous drawing
 
         /**
-         * Ruft den aktuellen globalen Zählerstand von JSONBin ab.
-         * @returns {Promise<number>} Die Anzahl der Touristen.
+         * Fetches the current global counter value from JSONBin.
+         * @returns {Promise<number>} The number of tourists.
          */
         async function getCounterValue() {
             try {
-                const response = await fetch(BIN_GET_URL, {
+                const response = await fetch(`${BIN_URL}/latest`, { // Use /latest to get the newest version without caching issues
                     headers: { 'X-Master-Key': API_KEY }
                 });
                 if (!response.ok) throw new Error(`API GET Error: ${response.statusText}`);
                 const data = await response.json();
                 return data.record.touristCount || 0;
             } catch (err) {
-                console.error("Fehler beim Abrufen des Zählerstands:", err);
-                showMessage("Konnte globale Statistik nicht laden.");
+                console.error("Error fetching counter value:", err);
+                showMessage("Could not load global statistics.");
                 return 0; // Fallback
             }
         }
 
         /**
-         * Aktualisiert den globalen Zählerstand auf JSONBin.
-         * @param {number} newTotalCount - Der neue, absolute Gesamtwert.
-         * @returns {Promise<boolean>} True bei Erfolg, false bei Fehler.
+         * Updates the global counter on JSONBin.
+         * @param {number} newTotalCount - The new, absolute total value.
+         * @returns {Promise<boolean>} True on success, false on error.
          */
         async function updateCounterValue(newTotalCount) {
             try {
@@ -149,15 +148,15 @@
                 if (!response.ok) throw new Error(`API PUT Error: ${response.statusText}`);
                 return true;
             } catch (err) {
-                console.error("Fehler beim Aktualisieren des Zählerstands:", err);
-                showMessage("Speichern fehlgeschlagen. Bitte erneut versuchen.");
+                console.error("Error updating counter value:", err);
+                showMessage("Save failed. Please try again.");
                 return false;
             }
         }
 
         /**
-         * Zeigt eine Nachricht in der benutzerdefinierten Nachrichtenbox an.
-         * @param {string} message - Die anzuzeigende Nachricht.
+         * Displays a message in the custom message box.
+         * @param {string} message - The message to display.
          */
         function showMessage(message) {
             if (messageText) messageText.textContent = message;
@@ -165,7 +164,7 @@
         }
 
         /**
-         * Aktualisiert den Text des "Remove"-Buttons mit der aktuellen Anzahl der Touristen.
+         * Updates the text of the "Remove" button with the current number of tourists.
          */
         function updateClearButtonText() {
             if (clearButton) {
@@ -175,7 +174,7 @@
         }
 
         /**
-         * Aktualisiert die Anzeige der insgesamt generierten Touristen (nur für diese Sitzung).
+         * Updates the display of the total generated tourists (for this session only).
          */
         function updateAllTimeStatsDisplay() {
             if (allTimeStatsDisplay) {
@@ -185,61 +184,61 @@
         }
         
         /**
-         * Startet den Prozess zum Löschen des Canvas und zur Synchronisierung mit JSONBin.
-         * Die UI wird sofort aktualisiert, die Synchronisierung läuft im Hintergrund.
+         * Starts the process of clearing the canvas and syncing with JSONBin.
+         * The UI is updated immediately, the synchronization runs in the background.
          */
         async function clearCanvasAndSync() {
             const countToSync = touristCount;
-            if (countToSync <= 0) return; // Nichts zu tun
+            if (countToSync <= 0) return; // Nothing to do
 
-            // --- Sofortige UI-Aktualisierungen ---
-            // 1. Touristen vom Canvas entfernen
+            // --- Immediate UI Updates ---
+            // 1. Remove tourists from the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 2. Lokalen Zähler und Button-Text zurücksetzen
+            // 2. Reset local counter and button text
             touristCount = 0;
-            updateClearButtonText(); // Setzt den Button auf "remove 0 touris"
+            updateClearButtonText(); // Sets the button to "remove 0 touris"
 
-            // 3. Globale Statistik auf "Laden" setzen
+            // 3. Set global statistics to "Loading"
             const previousGlobalText = worldwideStatsDisplay.textContent;
             worldwideStatsDisplay.textContent = 'loading global stats...';
 
-            // --- Asynchrone Hintergrund-Aktualisierung ---
+            // --- Asynchronous Background Update ---
             try {
                 const currentGlobalCount = await getCounterValue();
                 const newGlobalCount = currentGlobalCount + countToSync;
                 const success = await updateCounterValue(newGlobalCount);
 
                 if (success) {
-                    // Globale Statistik bei Erfolg aktualisieren
+                    // Update global statistics on success
                     worldwideStatsDisplay.textContent = `${newGlobalCount.toLocaleString('de-DE')} touris removed globally`;
                 } else {
-                    // Bei Fehler zum vorherigen Text zurückkehren
+                    // Revert to previous text on failure
                     worldwideStatsDisplay.textContent = previousGlobalText;
                 }
             } catch (error) {
-                console.error("Fehler im Synchronisierungsprozess:", error);
-                worldwideStatsDisplay.textContent = previousGlobalText; // Auch bei unerwarteten Fehlern zurücksetzen
-                showMessage("Globale Synchronisierung fehlgeschlagen.");
+                console.error("Error in synchronization process:", error);
+                worldwideStatsDisplay.textContent = previousGlobalText; // Also revert on unexpected errors
+                showMessage("Global synchronization failed.");
             }
         }
 
 
-        // Event Listener für den Clear Button
+        // Event Listener for the Clear Button
         if (clearButton) {
             clearButton.addEventListener('click', clearCanvasAndSync);
         }
 
-        // Farben für die Mannequins
+        // Colors for the mannequins
         const skinTones = ['#FAD2A5', '#E0B49A', '#C89F82', '#A9816B', '#8B6A56', '#6F5444'];
         const hairColors = ['#4A2C2A', '#6D4C41', '#B7A68E', '#D1C29B', '#F5E6CC', '#2C2C2C', '#A52A2A', '#FFDB58', '#E6E6FA'];
         const topColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#BB8FCE', '#82E0AA', '#FFA07A', '#20B2AA', '#DDA0DD'];
         const pantColors = ['#5D4037', '#795548', '#3E2723', '#1E88E5', '#424242', '#607D8B', '#2c3e50', '#95a5a6'];
 
         /**
-         * Zeichnet ein Mannequin auf dem Canvas an der angegebenen Position.
-         * @param {number} x - Die X-Koordinate auf dem Bildschirm.
-         * @param {number} y - Die Y-Koordinate auf dem Bildschirm.
+         * Draws a mannequin on the canvas at the specified position.
+         * @param {number} x - The X-coordinate on the screen.
+         * @param {number} y - The Y-coordinate on the screen.
          */
         function drawMannequin(x, y) {
             const rect = canvas.getBoundingClientRect();
@@ -299,7 +298,7 @@
 
                 ctx.beginPath();
                 ctx.moveTo(-legBaseXOffset, legOriginY); 
-                ctx.lineTo(footXLeft, legLineEndY);      
+                ctx.lineTo(footXLeft, legLineEndY);     
                 ctx.stroke();
 
                 ctx.beginPath();
@@ -377,7 +376,7 @@
 
             ctx.restore();
 
-            // Lokale Zähler aktualisieren
+            // Update local counters
             touristCount++;
             allTimeTouristCount++; 
             updateClearButtonText();
@@ -385,7 +384,7 @@
         }
         
         /**
-         * Die Haupt-Game-Loop-Funktion, die kontinuierlich Mannequins zeichnet, wenn isDrawing true ist.
+         * The main game loop function that continuously draws mannequins when isDrawing is true.
          */
         function gameLoop() {
             if (!isDrawing) { 
@@ -397,8 +396,8 @@
         }
 
         /**
-         * Aktualisiert die zuletzt bekannte Maus- oder Touch-Position.
-         * @param {Event} event - Das Maus- oder Touch-Event.
+         * Updates the last known mouse or touch position.
+         * @param {Event} event - The mouse or touch event.
          */
         function updateLastKnownPosition(event) {
             if (event.touches && event.touches.length > 0) {
@@ -411,8 +410,8 @@
         }
 
         /**
-         * Startet die Zeicheninteraktion bei Maus-Down oder Touch-Start.
-         * @param {Event} event - Das Maus- oder Touch-Event.
+         * Starts the drawing interaction on mouse down or touch start.
+         * @param {Event} event - The mouse or touch event.
          */
         function startDrawingInteraction(event) {
             if (event.target === screenshotButton || event.target.closest('#screenshotButton')) {
@@ -442,8 +441,8 @@
         }
 
         /**
-         * Behandelt Maus-Move- oder Touch-Move-Events zum Zeichnen.
-         * @param {Event} event - Das Maus- oder Touch-Event.
+         * Handles mouse move or touch move events for drawing.
+         * @param {Event} event - The mouse or touch event.
          */
         function handleDrawingMove(event) {
             if (!isDrawing) return;
@@ -462,7 +461,7 @@
         }
 
         /**
-         * Stoppt die Zeicheninteraktion bei Maus-Up oder Touch-End.
+         * Stops the drawing interaction on mouse up or touch end.
          */
         function stopDrawingInteraction() {
             if (!isDrawing) return; 
@@ -479,7 +478,7 @@
         }
 
         /**
-         * Passt die Canvas-Größe an die Fenstergröße an.
+         * Adjusts the canvas size to the window size.
          */
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -487,13 +486,13 @@
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             touristCount = 0; 
-            allTimeTouristCount = 0; // Setzt den Zähler für die Sitzung zurück
+            allTimeTouristCount = 0; // Reset session counter
             updateClearButtonText();
             updateAllTimeStatsDisplay(); 
         }
 
         /**
-         * Erstellt einen Screenshot und bietet ihn zum Teilen (mobil) oder Download (desktop) an.
+         * Creates a screenshot and offers it for sharing (mobile) or download (desktop).
          */
         async function takeScreenshot() {
             const wasMessageBoxHidden = messageBox.classList.contains('hidden');
@@ -538,8 +537,8 @@
 
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    console.error("Fehler beim Erstellen oder Teilen des Screenshots:", error);
-                    showMessage("Screenshot konnte nicht erstellt werden.");
+                    console.error("Error creating or sharing screenshot:", error);
+                    showMessage("Could not create screenshot.");
                 }
             } finally {
                 if (!wasMessageBoxHidden) messageBox.classList.remove('hidden');
@@ -569,7 +568,7 @@
         // Initialization on page load and resize
         window.addEventListener('load', async () => {
             resizeCanvas(); 
-            // --- Aktuellen globalen Wert laden und anzeigen ---
+            // --- Load and display the current global value ---
             const globalCount = await getCounterValue();
             worldwideStatsDisplay.textContent = `${globalCount.toLocaleString('de-DE')} touris removed globally`;
         });
