@@ -434,10 +434,10 @@ async function takeScreenshot() {
     try {
         const screenshotCanvas = await html2canvas(document.body, {
             useCORS: true, // Important for external resources like fonts
-            // The 'allowTaint' option was removed as it prevents downloading the image.
         });
 
         const image = screenshotCanvas.toDataURL('image/png');
+        
         const blob = await (await fetch(image)).blob();
         const file = new File([blob], 'overtourissimus_screenshot.png', { type: 'image/png' });
 
@@ -515,15 +515,17 @@ function syncOnUnload() {
     }
 }
 
-// --- Event Listeners ---
-document.addEventListener('DOMContentLoaded', async () => {
+/**
+ * Initializes the application and sets up event listeners.
+ */
+async function initializeApp() {
     // Error handling for the canvas context
     if (!ctx) {
         console.error("Error: 2D context could not be retrieved from canvas.");
         if (messageBox && messageText) {
             showMessage("Error: Canvas is not supported.");
         }
-        return;
+        return; // Stop initialization if canvas is not supported
     }
     
     // Initial setup
@@ -532,10 +534,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateClearButtonText();
     updateAllTimeStatsDisplay();
     
+    // Fetch initial global count
     const globalCount = await getCounterValue();
     worldwideStatsDisplay.textContent = `${globalCount.toLocaleString('de-DE')} touris removed globally`;
 
-    // Attach event listeners
+    // Attach all event listeners
     canvas.addEventListener('touchstart', startDrawingInteraction, { passive: false });
     canvas.addEventListener('mousedown', startDrawingInteraction);
     
@@ -543,10 +546,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         screenshotButton.addEventListener('click', takeScreenshot);
     }
     
-    if(clearButton) {
+    if (clearButton) {
         clearButton.addEventListener('click', clearCanvasAndSync);
     }
 
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('beforeunload', syncOnUnload); // Sync data before leaving the page
-});
+    window.addEventListener('beforeunload', syncOnUnload);
+}
+
+// Run the initialization function once the DOM is ready.
+initializeApp();
