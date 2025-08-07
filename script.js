@@ -433,8 +433,8 @@ async function takeScreenshot() {
 
     try {
         const screenshotCanvas = await html2canvas(document.body, {
-            useCORS: true,
-            allowTaint: true,
+            useCORS: true, // Important for external resources like fonts
+            // The 'allowTaint' option was removed as it prevents downloading the image.
         });
 
         const image = screenshotCanvas.toDataURL('image/png');
